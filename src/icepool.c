@@ -69,11 +69,11 @@ void icepool_init(IcepoolContext* ctx)
 
     // Set clock divider (6 MHz)
     {
-        // Enable
-        uint8_t d = 0x8B;
-        ftdi_write_data(ctx->ftdi, &d, 1);
+        // Enable divide by 5 option
+        //uint8_t d = 0x8B;
+        //ftdi_write_data(ctx->ftdi, &d, 1);
 
-        // Set
+        // Set divider (=0)
         uint8_t command[] = {
             0x86,
             0x00,
@@ -185,20 +185,90 @@ void icepool_spi_deassert_daisy(IcepoolContext* ctx)
     icepool_gpio_set_bit_upper(ctx, ICEPOOL_SPI_CS1_PIN, 1);
 }
 
+bool icepool_read_ready_flag(IcepoolContext* ctx)
+{
+    // READY is active-low
+    if (icepool_gpio_get_bit_upper(ctx, ICEPOOL_SPI_READY_PIN)) {
+        return false;
+    }
+    else {
+        return true;
+    }
+}
+
 void icepool_spi_write_shared(IcepoolContext* ctx, uint8_t data[], size_t data_length)
 {
-    // TODO
+    if (data_length == 0) {
+        return;
+    }
+
+    // Mode 0,0 / msb-first
+
+    uint8_t command[] = {
+        0x11,
+        (data_length - 1) & 0xFF,
+        ((data_length - 1) >> 8) & 0xFF
+    };
+
+    ftdi_write_data(ctx->ftdi, command, 3);
+    ftdi_write_data(ctx->ftdi, data, data_length & 0xFFFF);
 }
 
 void icepool_spi_read_daisy(IcepoolContext* ctx, uint8_t data[], size_t data_length)
 {
-    
-    // TODO
+    // Set SDO1 to dummy bit value (=0)
+    icepool_gpio_set_bit_upper(ctx, ICEPOOL_SPI_SDO1_PIN, 0);
+
+    // Mode 0,0 / msb-first
+    for (size_t n = 0; n < data_length; n++)
+    {
+        for (size_t i = 0; i < 8; i++)
+        {
+            // SDO1 out
+            // (Dummy)
+
+            // Wait half cycle
+            // TODO usleep
+
+            // SCK1 up
+            icepool_gpio_set_bit_upper(ctx, ICEPOOL_SPI_SCK1_PIN, 1);
+
+            // Sample SDI1
+            data[n] <<= 1;
+            data[n] |= icepool_gpio_get_bit_upper(ctx, ICEPOOL_SPI_SDI1_PIN);
+
+            // Wait half cycle
+            // TODO usleep
+
+            // SCK1 down
+            icepool_gpio_set_bit_upper(ctx, ICEPOOL_SPI_SCK1_PIN, 0);
+        }
+    }
 }
 
 void icepool_spi_write_daisy(IcepoolContext* ctx, uint8_t data[], size_t data_length)
 {
-    // TODO
+        // Mode 0,0 / msb-first
+    for (size_t n = 0; n < data_length; n++)
+    {
+        for (size_t i = 0; i < 8; i++)
+        {
+            // SDO1 out
+            icepool_gpio_set_bit_upper(ctx, ICEPOOL_SPI_SDO1_PIN, (data[n] >> (7-i)) & 0x01);
+
+            // Wait half cycle
+            // TODO usleep
+
+            // SCK1 up
+            icepool_gpio_set_bit_upper(ctx, ICEPOOL_SPI_SCK1_PIN, 1);
+
+            // Wait half cycle
+            // TODO usleep
+
+            // SCK1 down
+            icepool_gpio_set_bit_upper(ctx, ICEPOOL_SPI_SCK1_PIN, 0);
+        }
+    }
 }
 
 void icepool_spi_exchange_daisy(IcepoolContext* ctx, uint8_t data_out[], uint8_t data_in[], size_t data_length)
@@ -228,6 +298,17 @@ void icepool_spi_exchange_daisy(IcepoolContext* ctx, uint8_t data_out[], uint8_t
             icepool_gpio_set_bit_upper(ctx, ICEPOOL_SPI_SCK1_PIN, 0);
         }
     }
+}
+
+
+void icepool_rw_assert(IcepoolContext* ctx)
+{
+    icepool_gpio_set_bit_upper(ctx, ICEPOOL_SPI_RW_PIN, 1);
+}
+
+void icepool_rw_deassert(IcepoolContext* ctx)
+{
+    icepool_gpio_set_bit_upper(ctx, ICEPOOL_SPI_RW_PIN, 0);
 }
 
 void icepool_gpio_set_bit_lower(IcepoolContext* ctx, uint8_t pin, bool value)
