@@ -1,5 +1,5 @@
 #ifndef __ICEPOOL_H__
-#define __ICEPOOL_H__
+#define __ICEPOOL_H__ ...
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -15,13 +15,6 @@ typedef enum IcepoolFtdiInterface_t
     UNKNOWN_VERSION
 } IcepoolFtdiInterface;
 
-typedef enum IcepoolSpiInterface_t
-{
-    ICEPOOL_SPI_INTERFACE_SHARED,
-    ICEPOOL_SPI_INTERFACE_DAISY,
-    UNKNOWN_INTERFACE
-} IcepoolSpiInterface;
-
 typedef struct Icepool_MpsseGpioState_t
 {
     uint8_t data;
@@ -31,12 +24,7 @@ typedef struct Icepool_MpsseGpioState_t
 typedef struct IcepoolContext_t
 {
     struct ftdi_context* ftdi;
-    IcepoolFtdiInterface ftdi_interface;
 
-    // FUTURE?
-    uint8_t device_count;
-    //IcepoolDevice devices[ICEPOOL_DEVICE_COUNT_MAX];
-    
     // Maintain record of GPIO states
     Icepool_MpsseGpioState gpio_state_lower;
     Icepool_MpsseGpioState gpio_state_upper;
