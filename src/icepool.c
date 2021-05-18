@@ -30,11 +30,9 @@ void icepool_init(IcepoolContext* ctx)
 
     // Connect to USB device
     if (ftdi_usb_open(ctx->ftdi, 0x0403, 0x6010) == 0) {
-        ctx->ftdi_interface = ICEPOOL_FTDI_FT2232H;
         printf("Connected to an FT2232H (0403:6010).\n");
     }
     else if (ftdi_usb_open(ctx->ftdi, 0x0403, 0x6014) == 0) {
-        ctx->ftdi_interface = ICEPOOL_FTDI_FT232H;
         printf("Connected to an FT232H (0403:6014).\n");
     }
     else {
@@ -187,18 +185,94 @@ void icepool_spi_deassert_daisy(IcepoolContext* ctx)
 
 void icepool_spi_write_shared(IcepoolContext* ctx, uint8_t data[], size_t data_length)
 {
-    // TODO
+    size_t remaining_length = data_length;
+
+    ftdi_set_interface(ctx->ftdi, INTERFACE_A);
+
+    while(remaining_length > 0)
+    {
+        size_t chunk_length = (remaining_length > 65536) ? 65536 : remaining_length;
+
+        // Mode 0,0 / msb-first
+        uint8_t command[] = {
+            0x10,
+            (chunk_length - 1) & 0xFF,
+            ((chunk_length - 1) >> 8) & 0xFF
+        };
+
+        ftdi_write_data(ctx->ftdi, command, 3);
+        ftdi_write_data(ctx->ftdi, &data[data_length-remaining_length], chunk_length);
+
+        remaining_length -= chunk_length;
+    }
 }
 
 void icepool_spi_read_daisy(IcepoolContext* ctx, uint8_t data[], size_t data_length)
 {
-    
-    // TODO
+    uint8_t* dummy_send = (uint8_t*) calloc(data_length, sizeof(uint8_t));
+
+    // Just exchange by sending zeroes ¯\_(ツ)_/¯
+    icepool_spi_exchange_daisy(ctx, dummy_send, data, data_length);
+
+    free(dummy_send);
+
+    /*
+    size_t remaining_length = data_length;
+
+    ftdi_set_interface(ctx->ftdi, INTERFACE_B);
+
+    while(remaining_length > 0)
+    {
+        size_t chunk_length = (remaining_length > 65536) ? 65536 : remaining_length;
+
+        // Mode 0,0 / msb-first
+        uint8_t command[] = {
+            0x20,
+            (chunk_length - 1) & 0xFF,
+            ((chunk_length - 1) >> 8) & 0xFF
+        };
+
+        ftdi_write_data(ctx->ftdi, command, 3);
+
+        // TODO infinite loop?
+        while(ftdi_read_data(ctx->ftdi, &data[data_length-remaining_length], chunk_length) == 0);
+
+        remaining_length -= chunk_length;
+    }
+    */
 }
 
 void icepool_spi_write_daisy(IcepoolContext* ctx, uint8_t data[], size_t data_length)
 {
-    // TODO
+    uint8_t* dummy_recv = (uint8_t*) calloc(data_length, sizeof(uint8_t));
+
+    // Just exchange with dummy buffer ¯\_(ツ)_/¯
+    icepool_spi_exchange_daisy(ctx, data, dummy_recv, data_length);
+
+    free(dummy_recv);
+
+    /* FUTURE
+    size_t remaining_length = data_length;
+
+    ftdi_set_interface(ctx->ftdi, INTERFACE_B);
+
+    while(remaining_length > 0)
+    {
+        size_t round_length = (remaining_length > 65536) ? 65536 : remaining_length;
+
+        // Mode 0,0 / msb-first
+        uint8_t command[] = {
+            0x10,
+            (round_length - 1) & 0xFF,
+            ((round_length - 1) >> 8) & 0xFF
+        };
+
+        ftdi_write_data(ctx->ftdi, command, 3);
+        ftdi_write_data(ctx->ftdi, &data[data_length-remaining_length], round_length);
+
+        remaining_length -= round_length;
+    }
+    */
 }
 
 void icepool_spi_exchange_daisy(IcepoolContext* ctx, uint8_t data_out[], uint8_t data_in[], size_t data_length)
