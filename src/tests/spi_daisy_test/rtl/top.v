@@ -32,10 +32,10 @@ module top
     output wire status_led_n_out;
 
     reg[2:0] sck0;
-    reg[2:0] sdi0;
+    reg[1:0] sdi0;
 
     reg[2:0] sck1;
-    reg[2:0] sdi1;
+    reg[1:0] sdi1;
     
     wire sck0_rising_edge;
     wire sck1_rising_edge;
@@ -52,15 +52,15 @@ module top
         sck0 <= {sck0[1], sck0[0], sck0_in};
         sck1 <= {sck1[1], sck1[0], sck1_in};
 
-        sdi0 <= {sdi0[1], sdi0[0], sdi0_in};
-        sdi1 <= {sdi1[1], sdi1[0], sdi1_in};
+        sdi0 <= {sdi0[0], sdi0_in};
+        sdi1 <= {sdi1[0], sdi1_in};
       end
 
     // SPI0 logic
     always @(posedge clk_in, negedge reset_n_in)
       begin
           if (~reset_n_in)
-            spi0_buffer <= {(31){1'b0}};
+            spi0_buffer <= {(32){1'b0}};
           else if (~cs0_n_in && sck0_rising_edge)
             begin
                 spi0_buffer <= { spi0_buffer[30:0], sdi0[1] };
@@ -71,7 +71,7 @@ module top
     always @(posedge clk_in, negedge reset_n_in)
       begin
           if (~reset_n_in)
-            spi1_buffer <= {(31){1'b0}};
+            spi1_buffer <= {(32){1'b0}};
           else if (~cs1_n_in && sck1_rising_edge)
             begin
                 spi1_buffer <= { spi1_buffer[30:0], sdi1[1] };

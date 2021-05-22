@@ -20,10 +20,10 @@ void print_buffer(const uint8_t* buffer, size_t buffer_len)
 
 int main()
 {
-    uint8_t data_out[BUFFER_DEPTH] = { 0 };
-    uint8_t data_in[BUFFER_DEPTH] = { 0 };
+    uint8_t data_out[NUMBER_OF_BOARDS*BUFFER_DEPTH/8] = { 0 };
+    uint8_t data_in[NUMBER_OF_BOARDS*BUFFER_DEPTH/8] = { 0 };
 
-    const size_t data_len = BUFFER_DEPTH;
+    const size_t data_len = NUMBER_OF_BOARDS*BUFFER_DEPTH/8;
 
     // Set up data
     for(size_t i = 0; i < data_len; i++)
@@ -36,30 +36,26 @@ int main()
     IcepoolContext* ctx = icepool_new();
 
     icepool_spi_assert_daisy(ctx);
+
     icepool_spi_exchange_daisy(ctx, data_out, data_in, data_len);
+
+    printf("data_in after first exchange.\n");
+    print_buffer(data_in, data_len);
+
     icepool_spi_exchange_daisy(ctx, data_out, data_in, data_len);
-    icepool_spi_exchange_daisy(ctx, data_out, data_in, data_len);
-    icepool_spi_exchange_daisy(ctx, data_out, data_in, data_len);
+
     icepool_spi_deassert_daisy(ctx);
 
     icepool_free(ctx);
 
     // Test data
-    printf("data_in:\n");
+    printf("data_out:\n");
     print_buffer(data_out, data_len);
 
     printf("data_in:\n");
     print_buffer(data_in, data_len);
 
     munit_assert_memory_equal(data_len, data_out, data_in);
-
-    /*
-    for (size_t i = 0; i < data_len / 2; i++)
-    {
-        if (data_out[i] != data_in[32+i])
-            return EXIT_FAILURE;
-    }
-    */
 
     return EXIT_SUCCESS;
 }
