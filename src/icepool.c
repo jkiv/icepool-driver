@@ -3,6 +3,29 @@
 #include <string.h>
 
 #include "icepool.h"
+// Private declarations
+
+#define ICEPOOL_SPI_SCK0_PIN 0
+#define ICEPOOL_SPI_SDO0_PIN 1
+#define ICEPOOL_SPI_CS0_PIN 4
+
+#define ICEPOOL_SPI_CDONE_PIN 6
+#define ICEPOOL_SPI_CRESET_B_PIN 7
+
+#define ICEPOOL_SPI_SCK1_PIN 0
+#define ICEPOOL_SPI_SDO1_PIN 1
+#define ICEPOOL_SPI_SDI1_PIN 2
+#define ICEPOOL_SPI_CS1_PIN 4
+
+#define ICEPOOL_SPI_READY_PIN 6
+#define ICEPOOL_SPI_RW_PIN 7
+
+static void icepool_gpio_set_bit_lower(IcepoolContext* ctx, uint8_t pin, bool value);
+static void icepool_gpio_set_bit_upper(IcepoolContext* ctx, uint8_t pin, bool value);
+static uint8_t icepool_gpio_get_bit_lower(IcepoolContext* ctx, uint8_t pin);
+static uint8_t icepool_gpio_get_bit_upper(IcepoolContext* ctx, uint8_t pin);
+
+// Public interface implementation
 
 IcepoolContext* icepool_new()
 {
@@ -212,6 +235,7 @@ void icepool_spi_read_daisy(IcepoolContext* ctx, uint8_t data[], size_t data_len
     uint8_t* dummy_send = (uint8_t*) calloc(data_length, sizeof(uint8_t));
 
     // Just exchange by sending zeroes ¯\_(ツ)_/¯
+    // FUTURE use read command?
     icepool_spi_exchange_daisy(ctx, dummy_send, data, data_length);
 
     free(dummy_send);
@@ -247,6 +271,7 @@ void icepool_spi_write_daisy(IcepoolContext* ctx, uint8_t data[], size_t data_le
     uint8_t* dummy_recv = (uint8_t*) calloc(data_length, sizeof(uint8_t));
 
     // Just exchange with dummy buffer ¯\_(ツ)_/¯
+    // FUTURE use write command?
     icepool_spi_exchange_daisy(ctx, data, dummy_recv, data_length);
 
     free(dummy_recv);
@@ -304,7 +329,14 @@ void icepool_spi_exchange_daisy(IcepoolContext* ctx, uint8_t data_out[], uint8_t
     }
 }
 
-void icepool_gpio_set_bit_lower(IcepoolContext* ctx, uint8_t pin, bool value)
+bool icepool_poll_ready(IcepoolContext* ctx)
+{
+    return (icepool_gpio_get_bit_upper(ctx, 6) != 0);
+}
+
+// Private interface implementation
+
+static void icepool_gpio_set_bit_lower(IcepoolContext* ctx, uint8_t pin, bool value)
 {
     if (value) {
         // Set bit
@@ -324,7 +356,7 @@ void icepool_gpio_set_bit_lower(IcepoolContext* ctx, uint8_t pin, bool value)
     ftdi_write_data(ctx->ftdi, command, 3);
 }
 
-void icepool_gpio_set_bit_upper(IcepoolContext* ctx, uint8_t pin, bool value)
+static void icepool_gpio_set_bit_upper(IcepoolContext* ctx, uint8_t pin, bool value)
 {
     // Set bit
     ctx->gpio_state_upper.data |= 1 << pin;
@@ -343,7 +375,7 @@ void icepool_gpio_set_bit_upper(IcepoolContext* ctx, uint8_t pin, bool value)
     ftdi_write_data(ctx->ftdi, command, 3);
 }
 
-uint8_t icepool_gpio_get_bit_lower(IcepoolContext* ctx, uint8_t pin)
+static uint8_t icepool_gpio_get_bit_lower(IcepoolContext* ctx, uint8_t pin)
 {
     uint8_t command[] = {
         0x81
@@ -359,7 +391,7 @@ uint8_t icepool_gpio_get_bit_lower(IcepoolContext* ctx, uint8_t pin)
     return (result >> pin) & 1;
 }
 
-uint8_t icepool_gpio_get_bit_upper(IcepoolContext* ctx, uint8_t pin)
+static uint8_t icepool_gpio_get_bit_upper(IcepoolContext* ctx, uint8_t pin)
 {
     uint8_t command[] = {
         0x83
