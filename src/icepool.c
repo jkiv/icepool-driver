@@ -313,12 +313,12 @@ void icepool_spi_exchange_daisy(IcepoolContext* ctx, uint8_t data_out[], uint8_t
             // Wait half cycle
             // TODO usleep
 
-            // SCK1 up
-            icepool_gpio_set_bit_upper(ctx, ICEPOOL_SPI_SCK1_PIN, 1);
-            
             // Sample SDI1
             data_in[n] <<= 1;
             data_in[n] |= icepool_gpio_get_bit_upper(ctx, ICEPOOL_SPI_SDI1_PIN);
+
+            // SCK1 up
+            icepool_gpio_set_bit_upper(ctx, ICEPOOL_SPI_SCK1_PIN, 1);
 
             // Wait half cycle
             // TODO usleep
