@@ -79,4 +79,8 @@ void icepool_spi_exchange_daisy(IcepoolContext* ctx, uint8_t data_out[], uint8_t
 // READY flag
 bool icepool_poll_ready(IcepoolContext* ctx);
 
+// RESET
+void icepool_assert_reset(IcepoolContext* ctx);
+void icepool_deassert_reset(IcepoolContext* ctx);
+
 #endif /* __ICEPOOL_H__ */

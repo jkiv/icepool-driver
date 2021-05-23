@@ -18,7 +18,7 @@
 #define ICEPOOL_SPI_CS1_PIN 4
 
 #define ICEPOOL_SPI_READY_PIN 6
-#define ICEPOOL_SPI_RW_PIN 7
+#define ICEPOOL_SPI_RESET_PIN 7
 
 static void icepool_gpio_set_bit_lower(IcepoolContext* ctx, uint8_t pin, bool value);
 static void icepool_gpio_set_bit_upper(IcepoolContext* ctx, uint8_t pin, bool value);
@@ -140,9 +140,9 @@ void icepool_init(IcepoolContext* ctx)
 
     // ... ready (input)
 
-    // ... ~rw
-    ctx->gpio_state_upper.data |= 1 << 7;
-    ctx->gpio_state_upper.dir |= 1 << 7;
+    // ... ~reset
+    ctx->gpio_state_upper.data |= 1 << ICEPOOL_SPI_RESET_PIN;
+    ctx->gpio_state_upper.dir |= 1 << ICEPOOL_SPI_RESET_PIN;
 
     // Update lower GPIO byte
     {
@@ -332,6 +332,16 @@ void icepool_spi_exchange_daisy(IcepoolContext* ctx, uint8_t data_out[], uint8_t
 bool icepool_poll_ready(IcepoolContext* ctx)
 {
     return (icepool_gpio_get_bit_upper(ctx, 6) != 0);
+}
+
+void icepool_assert_reset(IcepoolContext* ctx)
+{
+    icepool_set_bit_upper(ctx, ICEPOOL_SPI_RESET_PIN, 0);
+}
+
+void icepool_deassert_reset(IcepoolContext* ctx)
+{
+    icepool_set_bit_upper(ctx, ICEPOOL_SPI_RESET_PIN, 1);
 }
 
 // Private interface implementation
