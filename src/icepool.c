@@ -336,12 +336,12 @@ bool icepool_poll_ready(IcepoolContext* ctx)
 
 void icepool_assert_reset(IcepoolContext* ctx)
 {
-    icepool_set_bit_upper(ctx, ICEPOOL_SPI_RESET_PIN, 0);
+    icepool_gpio_set_bit_upper(ctx, ICEPOOL_SPI_RESET_PIN, 0);
 }
 
 void icepool_deassert_reset(IcepoolContext* ctx)
 {
-    icepool_set_bit_upper(ctx, ICEPOOL_SPI_RESET_PIN, 1);
+    icepool_gpio_set_bit_upper(ctx, ICEPOOL_SPI_RESET_PIN, 1);
 }
 
 // Private interface implementation
