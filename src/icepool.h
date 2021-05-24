@@ -1,5 +1,5 @@
 #ifndef __ICEPOOL_H__
-#define __ICEPOOL_H__ ...
+#define __ICEPOOL_H__
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -34,6 +34,7 @@ typedef struct
 
 typedef struct
 {
+    // FTDI context (libftdi)
     struct ftdi_context* ftdi;
 
     // Last error
@@ -46,7 +47,6 @@ typedef struct
     // TODO Port B
     Icepool_MpsseGpioState gpio_state_lower;
     Icepool_MpsseGpioState gpio_state_upper;
-
 
 } IcepoolContext;
 
