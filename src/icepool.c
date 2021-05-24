@@ -350,7 +350,7 @@ void icepool_spi_exchange_daisy(IcepoolContext* ctx, uint8_t data_out[], uint8_t
 
 bool icepool_poll_ready(IcepoolContext* ctx)
 {
-    return (icepool_gpio_get_bit_upper(ctx, ICEPOOL_SPI_READY_PIN) != 0);
+    return (icepool_gpio_get_bit_upper(ctx, ICEPOOL_SPI_READY_PIN) == 0);
 }
 
 void icepool_assert_reset(IcepoolContext* ctx)
