@@ -10,7 +10,7 @@ run : flash spi_daisy_test
 	./spi_daisy_test
 
 .phony : spi_daisy_test
-spi_daisy_test : spi_daisy_test.c libicepool-d.a $(MUNIT_C_PATH)
+spi_daisy_test : main.c libicepool-d.a $(MUNIT_C_PATH)
 	gcc --std=c99 -g -o $@ -I$(VENDOR_PATH) -I$(ICEPOOL_PATH) -I$(FTDI_PATH) $< $(MUNIT_C_PATH) -L$(LIBICEPOOL_PATH) -licepool-d -L$(LIBFTDI_PATH) -lftdi1
 
 .phony : clean
