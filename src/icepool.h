@@ -8,53 +8,45 @@
 
 #define ICEPOOL_DEVICE_COUNT_MAX 16
 
-typedef enum IcepoolErrorType_t
-{
-    ICEPOOL_ERROR_TYPE,
-    ICEPOOL_LIBUSB_ERROR_TYPE,
-    ICEPOOL_LIBFTDI_ERROR_TYPE,
-    ICEPOOL_UNKNOWN_ERROR_TYPE
-} IcepoolErrorType;
-
-typedef enum IcepoolErrorCode_t
+typedef enum
 {
     ICEPOOL_OK = 0,
+    ICEPOOL_NO_DEVICE_FOUND,
+    //
+    ICEPOOL_LIBUSB_ERROR,
+    ICEPOOL_LIBFTDI_ERROR,
     ICEPOOL_UNKNOWN_ERROR
-} IcepoolErrorCode;
-
-typedef struct IcepoolError_t
-{
-    IcepoolErrorType type;
-    union {
-        IcepoolErrorCode as_icepool;
-        int32_t as_int32;
-        uint32_t as_uint32;
-    } code;
 } IcepoolError;
 
-typedef enum IcepoolFtdiDeviceType_t
+typedef enum
 {
     ICEPOOL_FTDI_FT232H,
-    ICEPOOL_TDI_FT2232H,
+    ICEPOOL_FTDI_FT2232H,
     ICEPOOL_FTDI_FT4232H,
-    ICEPOOL_UNKNOWN_FTDI_DEVICE_TYPE
+    ICEPOOL_UNKNOWN_DEVICE_TYPE
 } IcepoolFtdiDeviceType;
 
-typedef struct Icepool_MpsseGpioState_t
+typedef struct
 {
     uint8_t data;
     uint8_t dir;
 } Icepool_MpsseGpioState;
 
-typedef struct IcepoolContext_t
+typedef struct
 {
     struct ftdi_context* ftdi;
 
+    // Last error
+    IcepoolError error;
+
+    // Kind of device context connected to
     IcepoolFtdiDeviceType device_type;
 
     // Maintain record of GPIO states
+    // TODO Port B
     Icepool_MpsseGpioState gpio_state_lower;
     Icepool_MpsseGpioState gpio_state_upper;
+
 
 } IcepoolContext;
 

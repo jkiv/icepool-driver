@@ -35,6 +35,11 @@ int main()
 
     IcepoolContext* ctx = icepool_new();
 
+    if (ctx == NULL) {
+        fprintf(stderr, "Could not initialize IcepoolContext. Quitting...\n");
+        exit(EXIT_FAILURE);
+    }
+
     icepool_spi_assert_daisy(ctx);
 
     icepool_spi_exchange_daisy(ctx, data_out, data_in, data_len);

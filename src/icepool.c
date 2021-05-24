@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "icepool.h"
+
 // Private declarations
 
 #define ICEPOOL_SPI_SCK0_PIN 0
@@ -31,8 +32,17 @@ IcepoolContext* icepool_new()
 {
     IcepoolContext* ctx = (IcepoolContext*) malloc(sizeof(IcepoolContext));
 
-    if (ctx) {
-        icepool_init(ctx);
+    if (!ctx) {
+        // Failed to allocate
+        return NULL;
+    }
+
+    icepool_init(ctx);
+    
+    if (ctx->error != ICEPOOL_OK) {
+        // Failed to initialize
+        icepool_free(ctx);
+        return NULL;
     }
 
     return ctx;
@@ -50,17 +60,25 @@ void icepool_init(IcepoolContext* ctx)
 {
     // Create FTDI context
     ctx->ftdi = ftdi_new();
+    // TODO ftdi_new() failure?
+    ctx->error = ICEPOOL_OK;
 
     // Connect to USB device
+    // TODO handle errors properly
+    // FUTURE only target FT2232H
     if (ftdi_usb_open(ctx->ftdi, 0x0403, 0x6010) == 0) {
         printf("Connected to an FT2232H (0403:6010).\n");
+        ctx->device_type = ICEPOOL_FTDI_FT2232H;
     }
     else if (ftdi_usb_open(ctx->ftdi, 0x0403, 0x6014) == 0) {
         printf("Connected to an FT232H (0403:6014).\n");
+        ctx->device_type = ICEPOOL_FTDI_FT2232H;
     }
     else {
         fprintf(stderr, "Could not find a FT232H (0403:6014) or FT2232H (0403:6010).\n");
-        exit(EXIT_FAILURE);
+        ctx->device_type = ICEPOOL_UNKNOWN_DEVICE_TYPE;
+        ctx->error = ICEPOOL_NO_DEVICE_FOUND;
+        return; 
     }
 
     // From D2XX code:
@@ -105,6 +123,7 @@ void icepool_init(IcepoolContext* ctx)
     }
 
     // Set up GPIO state
+    // FUTURE Port B
     ctx->gpio_state_lower.data = 0;
     ctx->gpio_state_lower.dir = 0;
     ctx->gpio_state_upper.data = 0;
@@ -169,15 +188,17 @@ void icepool_init(IcepoolContext* ctx)
 
 void icepool_deinit(IcepoolContext* ctx)
 {
-    // Reset device
-    ftdi_disable_bitbang(ctx->ftdi);
+    if (ctx->ftdi) {
+        // Reset device
+        ftdi_disable_bitbang(ctx->ftdi);
 
-    // Close FTDI connection
-    ftdi_usb_close(ctx->ftdi);
+        // Close FTDI connection
+        ftdi_usb_close(ctx->ftdi);
 
-    // Free FTDI context
-    ftdi_free(ctx->ftdi);
-    
+        // Free FTDI context
+        ftdi_free(ctx->ftdi);
+    }
+
     // Zero out context
     memset(ctx, 0, sizeof(IcepoolContext));
 }
@@ -235,12 +256,11 @@ void icepool_spi_read_daisy(IcepoolContext* ctx, uint8_t data[], size_t data_len
     uint8_t* dummy_send = (uint8_t*) calloc(data_length, sizeof(uint8_t));
 
     // Just exchange by sending zeroes ¯\_(ツ)_/¯
-    // FUTURE use read command?
     icepool_spi_exchange_daisy(ctx, dummy_send, data, data_length);
 
     free(dummy_send);
 
-    /*
+    /* FUTURE
     size_t remaining_length = data_length;
 
     ftdi_set_interface(ctx->ftdi, INTERFACE_B);
@@ -271,7 +291,6 @@ void icepool_spi_write_daisy(IcepoolContext* ctx, uint8_t data[], size_t data_le
     uint8_t* dummy_recv = (uint8_t*) calloc(data_length, sizeof(uint8_t));
 
     // Just exchange with dummy buffer ¯\_(ツ)_/¯
-    // FUTURE use write command?
     icepool_spi_exchange_daisy(ctx, data, dummy_recv, data_length);
 
     free(dummy_recv);
@@ -331,7 +350,7 @@ void icepool_spi_exchange_daisy(IcepoolContext* ctx, uint8_t data_out[], uint8_t
 
 bool icepool_poll_ready(IcepoolContext* ctx)
 {
-    return (icepool_gpio_get_bit_upper(ctx, 6) != 0);
+    return (icepool_gpio_get_bit_upper(ctx, ICEPOOL_SPI_READY_PIN) != 0);
 }
 
 void icepool_assert_reset(IcepoolContext* ctx)
