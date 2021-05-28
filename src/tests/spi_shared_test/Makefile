@@ -5,7 +5,7 @@ LIBICEPOOL_PATH=../../
 FTDI_PATH=/usr/include/ftdi1
 LIBFTDI_PATH=/usr/lib
 
-TEST_NAME=spi_daisy_test
+TEST_NAME=spi_shared_test
 
 .phony : build
 build : $(TEST_NAME) gateware
@@ -14,6 +14,7 @@ build : $(TEST_NAME) gateware
 run : $(TEST_NAME) flash
 	./$(TEST_NAME)
 
+.phony : $(TEST_NAME)
 $(TEST_NAME): main.c libicepool-d.a $(MUNIT_C_PATH)
 	gcc --std=c99 -g -o $@ -I$(VENDOR_PATH) -I$(ICEPOOL_PATH) -I$(FTDI_PATH) $< $(MUNIT_C_PATH) -L$(LIBICEPOOL_PATH) -licepool-d -L$(LIBFTDI_PATH) -lftdi1
 

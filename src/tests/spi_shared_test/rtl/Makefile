@@ -1,4 +1,4 @@
-TEST_NAME=spi_daisy_test
+TEST_NAME=spi_shared_test
 
 NEXTPNR=nextpnr-ice40
 NEXTPNR_DEVICE=--hx8k
@@ -15,13 +15,13 @@ $(TEST_NAME).asc: $(TEST_NAME).json $(PCF_FILE)
 $(TEST_NAME).json : top.v
 	yosys -p 'synth_ice40 -top top -json $@ -abc2 -retime' $^
 
+.phony : build
+build : $(TEST_NAME).bin
+
 .phony : flash
 flash : $(TEST_NAME).bin
 	#iceprog -v -s -S $^
 	iceprog -v -S $^
-
-.phony : build
-build : $(TEST_NAME).bin
 
 .phony: clean
 clean:

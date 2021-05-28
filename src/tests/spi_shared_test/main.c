@@ -4,7 +4,7 @@
 #include "icepool.h"
 
 #define BUFFER_DEPTH 32
-#define NUMBER_OF_BOARDS 3
+#define NUMBER_OF_BOARDS 1
 
 void print_buffer(const uint8_t* buffer, size_t buffer_len)
 {
@@ -40,17 +40,16 @@ int main()
         exit(EXIT_FAILURE);
     }
 
+    icepool_spi_assert_shared(ctx);
+
+    icepool_spi_write_shared(ctx, data_out, data_len);
+
+    icepool_spi_deassert_shared(ctx);
+    
+    // TODO usleep
+
     icepool_spi_assert_daisy(ctx);
-
-    //icepool_spi_exchange_daisy(ctx, data_out, data_in, data_len);
-    icepool_spi_write_daisy(ctx, data_out, data_len);
-
-    //printf("data_in after first exchange.\n");
-    //print_buffer(data_in, data_len);
-
-    //icepool_spi_exchange_daisy(ctx, data_out, data_in, data_len);
     icepool_spi_read_daisy(ctx, data_in, data_len);
-
     icepool_spi_deassert_daisy(ctx);
 
     icepool_free(ctx);

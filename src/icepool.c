@@ -251,14 +251,14 @@ void icepool_spi_write_shared(IcepoolContext* ctx, uint8_t data[], size_t data_l
     }
 }
 
-void icepool_spi_read_daisy(IcepoolContext* ctx, uint8_t data[], size_t data_length)
+void icepool_spi_read_daisy(IcepoolContext* ctx, uint8_t data_in[], size_t data_length)
 {
-    uint8_t* dummy_send = (uint8_t*) calloc(data_length, sizeof(uint8_t));
+    uint8_t* dummy_out = (uint8_t*) calloc(data_length, sizeof(uint8_t));
 
-    // Just exchange by sending zeroes ¯\_(ツ)_/¯
-    icepool_spi_exchange_daisy(ctx, dummy_send, data, data_length);
+    // Just exchange with dummy buffer ¯\_(ツ)_/¯
+    icepool_spi_exchange_daisy(ctx, dummy_out, data_in, data_length);
 
-    free(dummy_send);
+    free(dummy_out);
 
     /* FUTURE
     size_t remaining_length = data_length;
@@ -286,14 +286,14 @@ void icepool_spi_read_daisy(IcepoolContext* ctx, uint8_t data[], size_t data_len
     */
 }
 
-void icepool_spi_write_daisy(IcepoolContext* ctx, uint8_t data[], size_t data_length)
+void icepool_spi_write_daisy(IcepoolContext* ctx, uint8_t data_out[], size_t data_length)
 {
-    uint8_t* dummy_recv = (uint8_t*) calloc(data_length, sizeof(uint8_t));
+    uint8_t* dummy_in = (uint8_t*) calloc(data_length, sizeof(uint8_t));
 
     // Just exchange with dummy buffer ¯\_(ツ)_/¯
-    icepool_spi_exchange_daisy(ctx, data, dummy_recv, data_length);
+    icepool_spi_exchange_daisy(ctx, data_out, dummy_in, data_length);
 
-    free(dummy_recv);
+    free(dummy_in);
 
     /* FUTURE
     size_t remaining_length = data_length;

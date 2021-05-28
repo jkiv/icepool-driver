@@ -1,4 +1,3 @@
-// Two SPI interfaces, plus buffer, plus READY
 module top
 (
   clk_in,
@@ -42,8 +41,7 @@ module top
     assign sck0_rising_edge = ~sck0[2] & sck0[1];
     assign sck1_rising_edge = ~sck1[2] & sck1[1];
 
-    reg[31:0] spi0_buffer;
-    reg[31:0] spi1_buffer;
+    reg[31:0] shared_buffer;
 
     // Synchronzing data clocks
     always @(posedge clk_in)
@@ -55,22 +53,15 @@ module top
         sdi1 <= {sdi1[0], sdi1_in};
       end
 
-    // SPI0 logic
-    always @(posedge clk_in, negedge reset_n_in)
+    // SPI logic -- SPI0 has precedence over SPI1
+    always @(posedge clk_in)
       begin
           if (!reset_n_in)
-            spi0_buffer <= 0;
+            shared_buffer <= 0;
           else if (!cs0_n_in && sck0_rising_edge)
-            spi0_buffer <= { spi0_buffer[30:0], sdi0[1] };
-      end
-
-    // SPI1 logic
-    always @(posedge clk_in, negedge reset_n_in)
-      begin
-          if (!reset_n_in)
-            spi1_buffer <= 0;
+            shared_buffer <= { shared_buffer[30:0], sdi0[1] };
           else if (!cs1_n_in && sck1_rising_edge)
-            spi1_buffer <= { spi1_buffer[30:0], sdi1[1] };
+            shared_buffer <= { shared_buffer[30:0], sdi1[1] };
       end
 
     // Heartbeat
@@ -85,8 +76,7 @@ module top
           heartbeat_count = heartbeat_count + 1;
       end
 
-    assign sdo1_out = spi1_buffer[31];
-    assign ready_n_ts_out = (spi0_buffer[31]) ? 1'b0 : 1'bz;
+    assign sdo1_out = shared_buffer[31];
 
     assign status_led_n_out = heartbeat_count[22] ^ ~((sck0_in & ~cs0_n) | (sck1_in & ~cs1_n));
 

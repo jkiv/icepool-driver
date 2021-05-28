@@ -1,0 +1,28 @@
+# Pinout configuration for the `icepool` ice40hx8k-bg121 daughter board.
+# * https://github.com/jkiv/icepool-board
+
+# Pinout for the BG121 variant of the ICE40HX8K.
+
+# External oscillator (12 MHz)
+set_io clk_in F11
+
+# External asynchronous reset
+set_io reset_n_in J1
+
+# SPI0 (Shared SPI interface)
+set_io sck0_in L10
+set_io sdi0_in J9
+#set_io sdo0_out K9
+set_io cs0_n_in K10
+
+# SPI1 (Daisy-chained SPI interface)
+set_io sck1_in G1
+set_io sdi1_in F3
+set_io sdo1_out K1
+set_io cs1_n_in H1
+
+# READY host interrupt
+set_io ready_n_ts_out B1
+
+# Status/Heartbeat LED
+set_io status_led_n_out A11
