@@ -4,7 +4,7 @@
 #include "icepool.h"
 
 #define BUFFER_DEPTH 32
-#define NUMBER_OF_BOARDS 3
+#define NUMBER_OF_BOARDS 1
 
 void print_buffer(const uint8_t* buffer, size_t buffer_len)
 {

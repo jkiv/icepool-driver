@@ -57,20 +57,20 @@ class IcepoolContext:
         _icepool_spi_deassert_daisy(self._ctx)
     
     def spi_read_daisy(self, length):
-        result = b"\0" * length
+        data_in = ctypes.create_string_buffer(length)
         _icepool_spi_read_daisy = _function('icepool_spi_read_daisy', None, [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_size_t,])
-        _icepool_spi_read_daisy(self._ctx, result, length)
-        return result
+        _icepool_spi_read_daisy(self._ctx, data_in, length)
+        return bytes(data_in) 
 
     def spi_write_daisy(self, data_out):
         _icepool_spi_write_daisy = _function('icepool_spi_write_daisy', None, [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_size_t,])
         _icepool_spi_write_daisy(self._ctx, data_out, len(data_out))
 
     def spi_exchange_daisy(self, data_out):
-        result = b"\0" * len(data_out)
+        data_in = ctypes.create_string_buffer(len(data_out))
         _icepool_spi_exchange_daisy = _function('icepool_spi_exchange_daisy', None, [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_char_p, ctypes.c_size_t,])
-        _icepool_spi_exchange_daisy(self._ctx, result, data_out, len(data_out))
-        return result
+        _icepool_spi_exchange_daisy(self._ctx, data_in, data_out, len(data_out))
+        return bytes(data_in)
     
     def poll_ready(self):
         _icepool_poll_ready = _function('icepool_poll_ready', ctypes.c_bool, [ctypes.c_void_p,])
