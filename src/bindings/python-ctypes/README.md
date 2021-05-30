@@ -1,6 +1,17 @@
+# icepool-py
 
-```bash
-$ python3 -m pip install invoke
-$ python3 -m pip install cffi
-$ invoke build-cffi
-```
+## About
+
+`icepool-py` is a Python wrapper for the [`icepool-driver` C library](https://github.com/jkiv/icepool-driver).
+
+## Dependencies
+
+`TODO`
+
+## Build & Install
+
+`TODO`
+
+## API
+
+`TODO`
