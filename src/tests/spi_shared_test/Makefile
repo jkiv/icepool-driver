@@ -16,7 +16,7 @@ run : $(TEST_NAME) flash
 
 .phony : $(TEST_NAME)
 $(TEST_NAME): main.c libicepool-d.a $(MUNIT_C_PATH)
-	gcc --std=c99 -g -o $@ -I$(VENDOR_PATH) -I$(ICEPOOL_PATH) -I$(FTDI_PATH) $< $(MUNIT_C_PATH) -L$(LIBICEPOOL_PATH) -licepool-d -L$(LIBFTDI_PATH) -lftdi1
+	gcc --std=c99 -g -o $@ -I$(VENDOR_PATH) -I$(ICEPOOL_PATH) -I$(FTDI_PATH) $< $(ICEPOOL_PATH)libicepool-d.a $(MUNIT_C_PATH) -L$(LIBFTDI_PATH) -lftdi1
 
 .phony : clean
 clean :
