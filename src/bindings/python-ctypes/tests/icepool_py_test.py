@@ -2,14 +2,16 @@
 
 import pytest
 
-from icepool import IcepoolContext
+from icepool import icepool
 
 def test_exchange_daisy():
-    context = IcepoolContext()
+    context = icepool.IcepoolContext()
 
-    test_buffer = b'\00\01\02\03'
+    test_buffer = bytes((0x00, 0x01, 0x02, 0x03,))
 
     context.spi_assert_daisy()
+
+    context.spi_exchange_daisy(test_buffer)
 
     result = context.spi_exchange_daisy(test_buffer)
 
@@ -18,9 +20,9 @@ def test_exchange_daisy():
     assert(test_buffer == result)
 
 def test_write_read_daisy():
-    context = IcepoolContext()
+    context = icepool.IcepoolContext()
 
-    test_buffer = b'\00\01\02\03'
+    test_buffer = bytes((0x00, 0x01, 0x02, 0x03,))
 
     context.spi_assert_daisy()
 

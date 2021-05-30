@@ -69,7 +69,7 @@ class IcepoolContext:
     def spi_exchange_daisy(self, data_out):
         data_in = ctypes.create_string_buffer(len(data_out))
         _icepool_spi_exchange_daisy = _function('icepool_spi_exchange_daisy', None, [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_char_p, ctypes.c_size_t,])
-        _icepool_spi_exchange_daisy(self._ctx, data_in, data_out, len(data_out))
+        _icepool_spi_exchange_daisy(self._ctx, data_out, data_in, len(data_out))
         return bytes(data_in)
     
     def poll_ready(self):

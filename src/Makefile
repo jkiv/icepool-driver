@@ -52,4 +52,7 @@ $(ICEPOOL_PY_SRC_DIR)libicepool.so : libicepool.so
 clean_python :
 	rm -f $(ICEPOOL_PY_SRC_DIR)libicepool.so
 	rm -rf $(ICEPOOL_PY_DIR)build $(ICEPOOL_PY_DIR)dist
-	rm -rf $(ICEPOOL_PY_DIR)src/*.egg-info/
+	rm -rf $(ICEPOOL_PY_DIR)src/icepool.egg-info/
+	rm -rf $(ICEPOOL_PY_DIR)src/icepool/__pycache__
+	rm -rf $(ICEPOOL_PY_DIR)src/icepool/.pytest_cache
+	rm -rf $(ICEPOOL_PY_DIR)tests/.pytest_cache/
