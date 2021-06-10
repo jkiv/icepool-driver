@@ -12,10 +12,17 @@ typedef enum
 {
     ICEPOOL_OK = 0,
     ICEPOOL_NO_DEVICE_FOUND,
+    ICEPOOL_NO_DEVICE_CONNECTED,
     //
     ICEPOOL_LIBUSB_ERROR,
     ICEPOOL_LIBFTDI_ERROR,
     ICEPOOL_UNKNOWN_ERROR
+} IcepoolErrorType;
+
+typedef struct
+{
+    IcepoolErrorType type;
+    int code;
 } IcepoolError;
 
 typedef enum
@@ -74,5 +81,10 @@ bool icepool_poll_ready(IcepoolContext* ctx);
 // RESET
 void icepool_assert_reset(IcepoolContext* ctx);
 void icepool_deassert_reset(IcepoolContext* ctx);
+
+// Error Handling
+bool icepool_has_error(IcepoolContext* ctx);
+void icepool_get_error(IcepoolContext* ctx, IcepoolError* error);
+void icepool_clear_error(IcepoolContext* ctx);
 
 #endif /* __ICEPOOL_H__ */
