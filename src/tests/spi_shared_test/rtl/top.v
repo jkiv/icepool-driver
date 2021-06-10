@@ -43,7 +43,7 @@ module top
 
     reg[31:0] shared_buffer;
 
-    // Synchronzing data clocks
+    // Synchronzing data
     always @(posedge clk_in)
       begin
         sck0 <= {sck0[1], sck0[0], sck0_in};
@@ -68,7 +68,7 @@ module top
 
     reg[22:0] heartbeat_count = 0;
 
-    always @(posedge clk_in, negedge reset_n_in)
+    always @(posedge clk_in)
       begin
         if (!reset_n_in)
           heartbeat_count = 0;
