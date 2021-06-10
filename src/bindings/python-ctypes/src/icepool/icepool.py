@@ -137,9 +137,9 @@ class IcepoolContext:
 
         self._assert_ok('Error while de-asserting RESET.')
     
-    def _assert_ok(self, error_obj, message):
+    def _assert_ok(self, message):
         has_error = _function('icepool_has_error', ctypes.c_bool, [ctypes.c_void_p,])
-        if self._ctx and not has_error(self._ctx):
+        if not self._ctx or has_error(self._ctx):
             raise IcepoolError(message)
 
 if __name__ == "__main__":
