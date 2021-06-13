@@ -42,19 +42,19 @@ int main()
 
     icepool_spi_assert_daisy(ctx);
 
-    muint_assert(!icepool_has_error(ctx));
+    munit_assert(!icepool_has_error(ctx));
 
     icepool_spi_write_daisy(ctx, data_out, data_len);
 
-    muint_assert(!icepool_has_error(ctx));
+    munit_assert(!icepool_has_error(ctx));
 
     icepool_spi_read_daisy(ctx, data_in, data_len);
 
-    muint_assert(!icepool_has_error(ctx));
+    munit_assert(!icepool_has_error(ctx));
 
     icepool_spi_deassert_daisy(ctx);
 
-    muint_assert(!icepool_has_error(ctx));
+    munit_assert(!icepool_has_error(ctx));
 
     icepool_free(ctx);
 
